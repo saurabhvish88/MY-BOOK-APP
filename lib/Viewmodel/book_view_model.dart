@@ -7,6 +7,9 @@ class BookViewModel extends ChangeNotifier {
   List<Book> _books = [];
   List<Book> get books => _books;
 
+  List<Book> _filteredBooks = [];
+  List<Book> get filteredBooks => _filteredBooks;
+
   List<Book> _favourites = [];
   List<Book> get favourites => _favourites;
 
@@ -37,6 +40,7 @@ class BookViewModel extends ChangeNotifier {
             (data['works'] as List).map((json) => Book.fromJson(json)).toList();
 
         _books.addAll(fetchedBooks);
+        _filteredBooks = List.from(_books); // initially set filtered to all
         _offset += _limit;
       } else {
         throw Exception("Failed to load books");
@@ -64,6 +68,18 @@ class BookViewModel extends ChangeNotifier {
 
   void removeFromFavourites(Book book) {
     _favourites.remove(book);
+    notifyListeners();
+  }
+
+  void filterBooks(String query) {
+    if (query.isEmpty) {
+      _filteredBooks = List.from(_books);
+    } else {
+      _filteredBooks = _books
+          .where(
+              (book) => book.title.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
     notifyListeners();
   }
 }

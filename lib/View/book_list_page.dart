@@ -4,11 +4,17 @@ import 'package:project/Widgets/book%20_shimmer.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/book_card.dart';
-
 import 'book_detail_page.dart';
 import 'favourites_page.dart';
 
-class BookListPage extends StatelessWidget {
+class BookListPage extends StatefulWidget {
+  @override
+  _BookListPageState createState() => _BookListPageState();
+}
+
+class _BookListPageState extends State<BookListPage> {
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final viewModel = Provider.of<BookViewModel>(context);
@@ -21,10 +27,7 @@ class BookListPage extends StatelessWidget {
           Stack(
             children: [
               IconButton(
-                icon: Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                ),
+                icon: Icon(Icons.favorite, color: Colors.red),
                 onPressed: () {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => FavouritesPage()));
@@ -49,6 +52,27 @@ class BookListPage extends StatelessWidget {
             ],
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(60),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                viewModel.filterBooks(value);
+              },
+              decoration: InputDecoration(
+                hintText: '🔍 Search books...',
+                filled: true,
+                fillColor: Colors.white,
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none),
+              ),
+            ),
+          ),
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -73,10 +97,10 @@ class BookListPage extends StatelessWidget {
               return true;
             },
             child: ListView.builder(
-              itemCount: viewModel.books.length + 1,
+              itemCount: viewModel.filteredBooks.length + 1,
               itemBuilder: (context, index) {
-                if (index < viewModel.books.length) {
-                  final book = viewModel.books[index];
+                if (index < viewModel.filteredBooks.length) {
+                  final book = viewModel.filteredBooks[index];
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
